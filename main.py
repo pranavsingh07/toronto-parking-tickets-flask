@@ -131,7 +131,7 @@ def dayofweek(day):
   csv_data.name = day
   headers = {'Content-type': 'text/csv'}
   response = Response(
-      csv_data.sort_values(by="Issue_Date").to_csv(index=False),
+      csv_data.sort_values(by="issue_date").to_csv(index=False),
       headers=headers)
 
   return response
