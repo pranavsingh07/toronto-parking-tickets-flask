@@ -139,13 +139,13 @@ def dayofweek(day):
 
 @app.route('/total')
 def total():
-  csv_file = "total/*.csv"
+  csv_file = os.path.join(CSV_DIR, "total/") 
   csv_paths = []
-  if not os.listdir(CSV_DIR):
+  if not os.listdir(csv_file):
     return "ERROR: path %s was empty"
-  for f in os.listdir(CSV_DIR):
-    csv_paths.append(os.path.join(CSV_DIR, f))
-
+  for f in os.listdir(csv_file):
+    csv_paths.append(os.path.join(CSV_DIR + "/total", f))
+    
   # Also make sure the requested csv file does exist
   for csv_path in csv_paths:
     if not os.path.isfile(csv_path):
