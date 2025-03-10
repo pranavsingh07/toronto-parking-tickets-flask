@@ -1,219 +1,128 @@
 import os
 import pandas as pd
-from flask import Flask, send_file, Response
-from pandas.core.common import is_null_slice
-from pandas.core.dtypes.missing import isna
+from flask import Flask, Response
 
 app = Flask(__name__)
 
+# Define the base directory for CSV files
 CSV_DIR = os.path.abspath(os.path.join(os.path.dirname('./'), "csvs"))
+
+# --------------------------- Helper Functions --------------------------- #
+
+def read_csv_file(csv_file):
+    #Helper function to read a CSV file and return its contents.#
+    csv_path = os.path.join(CSV_DIR, csv_file)
+    
+    # Check if file exists
+    if not os.path.isfile(csv_path):
+        return f"ERROR: File {csv_file} not found on the server", 404
+    
+    # Read CSV and return as response
+    csv_data = pd.read_csv(csv_path)
+    headers = {'Content-Type': 'text/csv'}
+    return Response(csv_data.to_csv(index=False), headers=headers)
+
+# --------------------------- API Endpoints --------------------------- #
 
 @app.route('/')
 def index():
-  return 'Hello from Flask!'
-
+    #Home route - simple greeting message.#
+    return 'Welcome to the Parking Ticket Data API!'
 
 @app.route('/agg/address')
 def agg_address():
-  csv_file = "agg/agg_address.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-  # response.headers["Content-Disposition"] = "attachment; filename=users.csv"
-
-  return response
-
+    #Returns aggregated parking ticket data by address.#
+    return read_csv_file("agg/agg_address.csv")
 
 @app.route('/agg/code')
 def agg_code():
-  csv_file = "agg/agg_code.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
-
+    #Returns aggregated parking ticket data by violation code.#
+    return read_csv_file("agg/agg_code.csv")
 
 @app.route('/agg/code/<id>')
 def agg_code_by_id(id):
-  csv_file = "agg/agg_code.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
+    #Returns specific violation code details.#
+    csv_file = "agg/agg_code.csv"
+    csv_path = os.path.join(CSV_DIR, csv_file)
 
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  csv_data = csv_data[csv_data['Code'] == int(id)]
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
-
+    if not os.path.isfile(csv_path):
+        return f"ERROR: File {csv_file} not found on the server", 404
+    
+    csv_data = pd.read_csv(csv_path)
+    csv_data = csv_data[csv_data['Code'] == int(id)]  # Filter by violation code
+    if csv_data.empty:
+        return f"ERROR: No records found for violation code {id}", 404
+    headers = {'Content-Type': 'text/csv'}
+    
+    return Response(csv_data.to_csv(index=False), headers=headers)
 
 @app.route('/agg/prov')
 def agg_prov():
-  csv_file = "agg/agg_prov.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
-
+    #Returns aggregated ticket data by province of vehicle plate.#
+    return read_csv_file("agg/agg_prov.csv")
 
 @app.route('/agg/fine_per_day')
 def agg_fine_per_day():
-  csv_file = "agg/agg_fine_per_day.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
-
+    #Returns aggregated fines collected per day.#
+    return read_csv_file("agg/agg_fine_per_day.csv")
 
 @app.route('/agg/dayofweek')
 def agg_dayofweek():
-  csv_file = "agg/agg_dayofweek.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
+    #Returns aggregated ticket data by day of the week.#
+    return read_csv_file("agg/agg_dayofweek.csv")
 
 @app.route('/agg/month')
 def agg_month():
-  csv_file = "agg/agg_month.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
+    #Returns aggregated ticket data by month.#
+    return read_csv_file("agg/agg_month.csv")
 
 @app.route('/agg/hour')
 def agg_hour():
-  csv_file = "agg/agg_hour.csv"
-  csv_path = os.path.join(CSV_DIR, csv_file)
-
-  # Also make sure the requested csv file does exist
-  if not os.path.isfile(csv_path):
-    return "ERROR: file %s was not found on the server" % csv_file
-  # Send the file back to the client
-  csv_data = pd.read_csv(csv_path)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(csv_data.to_csv(index=False), headers=headers)
-
-  return response
-
+    #Returns aggregated ticket data by hour of the day.#
+    return read_csv_file("agg/agg_hour.csv")
 
 @app.route('/dayofweek/<day>')
 def dayofweek(day):
-  csv_file = "dayofweek/" + day + "/*.csv"
-  csv_paths = []
-  if not os.listdir(CSV_DIR + "/dayofweek/" + day):
-    return "ERROR: path %s was empty" % day
-  for f in os.listdir(CSV_DIR + "/dayofweek/" + day):
-    csv_paths.append(os.path.join(CSV_DIR + "/dayofweek/" + day, f))
+    #Returns ticket data for a specific day of the week.#
+    dir_path = os.path.join(CSV_DIR, "dayofweek", day)
 
-  # Also make sure the requested csv file does exist
-  for csv_path in csv_paths:
-    if not os.path.isfile(csv_path):
-      return "ERROR: file %s was not found on the server" % csv_file
+    if not os.path.exists(dir_path) or not os.listdir(dir_path):
+        return f"ERROR: No data found for {day}", 404
 
-  # Send the file back to the client
-
-  csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
-  csv_data.name = day
-  headers = {'Content-type': 'text/csv'}
-  response = Response(
-      csv_data.sort_values(by="issue_date").to_csv(index=False),
-      headers=headers)
-
-  return response
-
+    csv_paths = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f.endswith('.csv')]
+    csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
+    
+    headers = {'Content-Type': 'text/csv'}
+    return Response(csv_data.sort_values(by="issue_date").to_csv(index=False), headers=headers)
 
 @app.route('/total')
 def total():
-  csv_file = os.path.join(CSV_DIR, "total/") 
-  csv_paths = []
-  if not os.listdir(csv_file):
-    return "ERROR: path %s was empty"
-  for f in os.listdir(csv_file):
-    csv_paths.append(os.path.join(CSV_DIR + "/total", f))
+    #Returns the full dataset of parking tickets.#
+    dir_path = os.path.join(CSV_DIR, "total")
+
+    if not os.path.exists(dir_path) or not os.listdir(dir_path):
+        return "ERROR: No data found in the total directory", 404
+
+    csv_paths = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f.endswith('.csv')]
+    csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
     
-  # Also make sure the requested csv file does exist
-  for csv_path in csv_paths:
-    if not os.path.isfile(csv_path):
-      return "ERROR: file %s was not found on the server" % csv_file
-
-  # Send the file back to the client
-
-  csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
-  headers = {'Content-type': 'text/csv'}
-  response = Response(
-      csv_data.sort_values(by=["Issue_Date", 'Issue_Time']).to_csv(index=False),
-      headers=headers)
-
-  return response
+    headers = {'Content-Type': 'text/csv'}
+    return Response(csv_data.sort_values(by=["Issue_Date", "Issue_Time"]).to_csv(index=False), headers=headers)
 
 @app.route('/month/<month>')
 def month(month):
-  csv_file = "month/" + month + "/*.csv"
-  csv_paths = []
-  if not os.listdir(CSV_DIR + "/month/" + month):
-    return "ERROR: path %s was empty" % month
-  for f in os.listdir(CSV_DIR + "/month/" + month):
-    csv_paths.append(os.path.join(CSV_DIR + "/month/" + month, f))
+    #Returns ticket data for a specific month.#
+    dir_path = os.path.join(CSV_DIR, "month", month)
 
-  # Also make sure the requested csv file does exist
-  for csv_path in csv_paths:
-    if not os.path.isfile(csv_path):
-      return "ERROR: file %s was not found on the server" % csv_file
+    if not os.path.exists(dir_path) or not os.listdir(dir_path):
+        return f"ERROR: No data found for {month}", 404
 
-  # Send the file back to the client
+    csv_paths = [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f.endswith('.csv')]
+    csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
+    
+    headers = {'Content-Type': 'text/csv'}
+    return Response(csv_data.sort_values(by="Issue_Date").to_csv(index=False), headers=headers)
 
-  csv_data = pd.concat([pd.read_csv(f) for f in csv_paths], ignore_index=True)
-  csv_data.name = month
-  headers = {'Content-type': 'text/csv'}
-  response = Response(
-      csv_data.sort_values(by="Issue_Date").to_csv(index=False),
-      headers=headers)
-
-  return response
-
-app.run(host='0.0.0.0', port=81)
+# Run the Flask app
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=81)
