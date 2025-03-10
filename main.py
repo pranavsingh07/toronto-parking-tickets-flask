@@ -110,6 +110,36 @@ def agg_dayofweek():
 
   return response
 
+@app.route('/agg/month')
+def agg_month():
+  csv_file = "agg/agg_month.csv"
+  csv_path = os.path.join(CSV_DIR, csv_file)
+
+  # Also make sure the requested csv file does exist
+  if not os.path.isfile(csv_path):
+    return "ERROR: file %s was not found on the server" % csv_file
+  # Send the file back to the client
+  csv_data = pd.read_csv(csv_path)
+  headers = {'Content-type': 'text/csv'}
+  response = Response(csv_data.to_csv(index=False), headers=headers)
+
+  return response
+
+@app.route('/agg/hour')
+def agg_hour():
+  csv_file = "agg/agg_hour.csv"
+  csv_path = os.path.join(CSV_DIR, csv_file)
+
+  # Also make sure the requested csv file does exist
+  if not os.path.isfile(csv_path):
+    return "ERROR: file %s was not found on the server" % csv_file
+  # Send the file back to the client
+  csv_data = pd.read_csv(csv_path)
+  headers = {'Content-type': 'text/csv'}
+  response = Response(csv_data.to_csv(index=False), headers=headers)
+
+  return response
+
 
 @app.route('/dayofweek/<day>')
 def dayofweek(day):
