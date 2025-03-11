@@ -60,6 +60,11 @@ def agg_code_by_id(id):
 def agg_prov():
     #Returns aggregated ticket data by province of vehicle plate.#
     return read_csv_file("agg/agg_prov.csv")
+  
+@app.route('/agg/provcoord')
+def agg_prov_w_coord():
+    #Returns aggregated ticket data by province of vehicle plate.#
+    return read_csv_file("agg/agg_prov_w_coord.csv")
 
 @app.route('/agg/fine_per_day')
 def agg_fine_per_day():
