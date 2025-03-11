@@ -33,6 +33,11 @@ def index():
 def agg_address():
     #Returns aggregated parking ticket data by address.#
     return read_csv_file("agg/agg_address.csv")
+  
+@app.route('/agg/addcoord')
+def agg_add_w_coord():
+    #Returns aggregated ticket data by province of vehicle plate.#
+    return read_csv_file("agg/agg_add_w_coord.csv")
 
 @app.route('/agg/code')
 def agg_code():
