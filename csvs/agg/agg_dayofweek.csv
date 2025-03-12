@@ -1,8 +1,8 @@
-Day of the Week,Count
-Sunday,183215
-Monday,252563
-Tuesday,294062
+Day_of_the_Week,Count
 Wednesday,294487
-Thursday,283346
+Tuesday,294062
 Friday,279350
+Thursday,283346
 Saturday,234864
+Monday,252563
+Sunday,183215
